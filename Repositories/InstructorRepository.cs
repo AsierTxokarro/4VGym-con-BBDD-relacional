@@ -1,74 +1,65 @@
-﻿using _4GYM.Models;
+﻿using _4GYM.Data;
+using _4GYM.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace _4GYM.Repositories
 {
     public class InstructorRepository
     {
-        public IEnumerable<Instructor> GetAll()
+
+        private readonly Bd4VgymContext _bd4VgymContext;
+
+        public InstructorRepository(Bd4VgymContext bd4VgymContext)
         {
-            return _instructors.Values;
+            _bd4VgymContext = bd4VgymContext;
+        }
+        public async Task<List<Instructor>> GetAll()
+        {
+            return await _bd4VgymContext.Instructors.ToListAsync();
         }
 
-
-        // Método para obtener introuctores por su inicial
-        public IEnumerable<Instructor> GetByFirstInitial(string? firstInitial = null)
+        // Método para obtener intructores por su inicial
+        public async Task <List<Instructor>> GetByFirstInitial(string? firstInitial = null)
         {
-            IEnumerable<Instructor> _allInstructors = _instructors.Values;
-
             // Si se recibe la inicial, aplicamos el filtro sobre la colección
             if (!string.IsNullOrWhiteSpace(firstInitial))
             {
-                IEnumerable<Instructor> filteredInstructors =
-                    _allInstructors
+                var instructoresFiltrados = _bd4VgymContext.Instructors
                         .Where(instructor =>
                                      !string.IsNullOrEmpty(instructor.Name) &&
                                      instructor.Name.StartsWith(firstInitial, StringComparison.OrdinalIgnoreCase)
                         );
-
-                return filteredInstructors;
+                return await instructoresFiltrados.ToListAsync();
             }
 
-            return _allInstructors;
+            return await _bd4VgymContext.Instructors.ToListAsync();
         }
 
-        public Instructor Add(Instructor instructor)
+        public async Task <Instructor> Add(Instructor instructor)
         {
-            // Asignamos el ID autoincremental en la capa de datos, o sea que machacamos el que venia
-            instructor.Id = _nextId++;
+            _bd4VgymContext.Instructors.Add(instructor);
 
-            _instructors.Add(instructor.Id, instructor);
+            await _bd4VgymContext.SaveChangesAsync();
 
-            // Devolvemos el objeto completo tal como se ha guardado
             return instructor;
         }
 
-        public Instructor? GetById(int id)
+        public async Task <Instructor?> GetById(long id)
         {
-            _instructors.TryGetValue(id, out Instructor? instructor);
-            return instructor;
-        }
-        public Instructor? getByIdInterno(long id)
-        {
-            return _instructors.Values.SingleOrDefault(i => i.Id == id);
+            return await _bd4VgymContext.Instructors.SingleOrDefaultAsync(i => i.Id == id);
         }
 
-        // TODO: No es necesario, lo podemos quitar, pero es para ver alternativas en LinQ
-        internal Instructor? GetByIdLinq(int id)
+        public async Task <Instructor?> GetByName(string name)
         {
-            return _instructors.Values
-                .SingleOrDefault(i => i.Id == id); // FistOrDefault (Where devolvería una colección y queremos solo 1 posible elemento)
+            return await _bd4VgymContext.Instructors.SingleOrDefaultAsync(i => i.Name == name);
         }
-        public Instructor? GetByName(string name)
+        public async Task <Instructor?> GetByEmail(string email)
         {
-            return _instructors.Values.SingleOrDefault(i => i.Name == name);
+            return await _bd4VgymContext.Instructors.SingleOrDefaultAsync(i => i.Email == email);
         }
-        public Instructor? GetByEmail(string email)
+        public async Task <Instructor?> GetByPhoto_url(string photo_url)
         {
-            return _instructors.Values.SingleOrDefault(i => i.Email == email);
-        }
-        public Instructor? GetByPhoto_url(string photo_url)
-        {
-            return _instructors.Values.SingleOrDefault(i => i.PhotoUrl == photo_url);
+            return await _bd4VgymContext.Instructors.SingleOrDefaultAsync(i => i.PhotoUrl == photo_url);
         }
         public bool FormatoCorrecto(string photo_url)
         {
@@ -78,9 +69,9 @@ namespace _4GYM.Repositories
             }
             return false;
         }
-        public Instructor? GetByPhone(string phone)
+        public async Task <Instructor?> GetByPhone(string phone)
         {
-            return _instructors.Values.SingleOrDefault(i => i.Phone == phone);
+            return await _bd4VgymContext.Instructors.SingleOrDefaultAsync(i => i.Phone == phone);
         }
     }
 }
