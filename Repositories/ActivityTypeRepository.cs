@@ -1,57 +1,39 @@
-﻿using _4GYM.Models;
+﻿using _4GYM.Data;
+using _4GYM.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace _4GYM.Repositories
 {
     public class ActivityTypeRepository
     {
-        private List<ActivityType> _activityTypes = new();
-        public InMemoryActivityTypeRepository()
+        private readonly Bd4VgymContext _bd4VgymContext;
+        
+        public ActivityTypeRepository(Bd4VgymContext bd4VgymContext)
         {
-            SeedData(); // Precargamos algunos datos de prueba
-        }
-        private void SeedData()
-        {
-            _activityTypes = new List<ActivityType>()
-            {
-                new ActivityType (10, "BodyPump",  2 ),
-                new ActivityType ( 20, "Spinning",  1 ),
-                new ActivityType ( 30, "Dancing", 1 ),
-                new ActivityType (40, "CrossFit", 3)
-            };
-
+            _bd4VgymContext = bd4VgymContext;
         }
         // Método para obtener todos los tipos de actividades
-        public IEnumerable<ActivityType> GetAll()
+        public async Task<List<ActivityType>> GetActivityTypes()
         {
-            return _activityTypes;
+            return await _bd4VgymContext.ActivityTypes.ToListAsync();
         }
 
-        private int _nextId = 1; // Para el autonumerico
 
-        /// <summary>
-        /// Guarda un nuevo tipo de actividad generando su ID de forma automática. (Autonumerico)
-        /// </summary>
-        /// <param name="activityType">Objeto con los datos a guardar (sin ID o con ID no asignado).</param>
-        /// <returns>La entidad guardada con su ID autogenerado.</returns>
-        public ActivityType Add(ActivityType activityType)
+        public async Task <ActivityType?> GetByName(string name)
         {
-            // Asignamos el ID autoincremental en la capa de datos, o sea que machacamos el que venia
-            activityType.Id = _nextId++;
-
-            _activityTypes.Add(activityType);
-
-            // Devolvemos el objeto completo tal como se ha guardado
-            return activityType;
-        }
-
-        public ActivityType? GetByName(string name)
-        {
-            return _activityTypes.SingleOrDefault(at => string.Equals(at.Name, name, StringComparison.OrdinalIgnoreCase));
-
+            return await _bd4VgymContext.ActivityTypes.SingleOrDefaultAsync(n => string.Equals(n.Name, name, StringComparison.CurrentCultureIgnoreCase));
         }
         public ActivityType? GetById(long id)
         {
-            return _activityTypes.SingleOrDefault(at => at.Id == id);
+            return _bd4VgymContext.ActivityTypes.SingleOrDefault(at => at.Id == id);
+        }
+        public async Task<ActivityType> Add(ActivityType activityType)
+        {
+            _bd4VgymContext.ActivityTypes.Add(activityType);
+
+            await _bd4VgymContext.SaveChangesAsync();
+
+            return activityType;
         }
 
     }
