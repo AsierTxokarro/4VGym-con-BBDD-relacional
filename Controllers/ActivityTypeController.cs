@@ -23,7 +23,7 @@ namespace _4VGymAPI.Controllers
         /// Devuelve el listado de tipos de actividades de 4VGym.
         /// </summary>
         [HttpGet("AllActivityTypes")]
-        public async Task<ActionResult<ActivityType>> GetActivityTypes()
+        public async Task<ActionResult<List<ActivityType>>> GetActivityTypes()
         {
             try
             {

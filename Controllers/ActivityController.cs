@@ -1,5 +1,7 @@
 ﻿
+using _4GYM.Models;
 using _4VGymAPI.Repositories;
+using _4VGymEF.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,26 +16,20 @@ namespace _4VGymAPI.Controllers
         {
             _activityrepository = activityrepository;
         }
+
         //get todas sin filtrar
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<Activity>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public ActionResult<IEnumerable<Activity>> FindActivities()
+        [HttpGet("AllActivities")]
+        public async Task<ActionResult<List<Activity>>> GetAll()
         {
             try
             {
-                IEnumerable<Activity> activities = _repository.GetAll();
-
-                if (activities == null || activities.Count() == 0)
-                {
-                    return BadRequest(new ErrorResponse(2, "No activity types found"));
-                }
-
+               var activities = await _activityrepository.GetAll();
                 return Ok(activities);
             }
-            catch (Exception)
+            catch (Exception exc)
             {
-                return BadRequest(new ErrorResponse(1, "Any problem in the Server"));
+                var error = new ErrorResponse(500, $"Error al obtener las actividades: {exc.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
         }
 
@@ -43,9 +39,7 @@ namespace _4VGymAPI.Controllers
         /// </summary>
         /// <param name="activity">ObjetoActivity enviado en el cuerpo de la petición (JSON).</param>
         [HttpPost]
-        [ProducesResponseType(typeof(Activity), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        public ActionResult<Activity> CreateActivity([FromBody] Activity activity)
+        public async Task<ActionResult<Activity>> CreateActivity([FromBody] Activity activity)
         {
             try
             {
@@ -53,11 +47,11 @@ namespace _4VGymAPI.Controllers
                 {
                     return BadRequest(new ErrorResponse(0, "Fail you must write an activity"));
                 }
-                if (_repository.GetById(activity.Id) != null)
+                if (await _activityrepository.GetById(activity.Id) != null)
                 {
-                    return BadRequest(new ErrorResponse(2, "The id is unique, ther is already another activty with that id"));
+                    return BadRequest(new ErrorResponse(2, "The id is unique, ther is already another activity with that id"));
                 }
-                if (_repository.NumMax(activity.MaxParticipants) == false)
+                if (_activityrepository.NumMax(activity.MaxParticipants) == false)
                 {
                     return BadRequest(new ErrorResponse(3, "The number of participants is incorrect, must be less than 25"));
                 }
@@ -66,14 +60,11 @@ namespace _4VGymAPI.Controllers
                     return BadRequest(new ErrorResponse(4, "The dates are incorrect"));
                 }
 
-                List<ErrorResponse> errores;
-                Activity? createdActivity = _repository.Add(activity, out errores);
-                if (errores.Count > 0)
-                {
-                    return BadRequest(errores);
-                }
+                
+                Activity? createdActivity = await _activityrepository.Add(activity);
+            
 
-                return StatusCode(StatusCodes.Status201Created, activity);
+                return StatusCode(StatusCodes.Status201Created, createdActivity);
             }
             catch (Exception)
             {
