@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using _4GYM.Validations;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using _4VGymEF.Validations;
 
 namespace _4VGymEF.Models
 {
