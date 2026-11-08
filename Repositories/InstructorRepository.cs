@@ -27,7 +27,7 @@ namespace _4GYM.Repositories
                 var instructoresFiltrados = _bd4VgymContext.Instructors
                         .Where(instructor =>
                                      !string.IsNullOrEmpty(instructor.Name) &&
-                                     instructor.Name.StartsWith(firstInitial, StringComparison.OrdinalIgnoreCase)
+                                     instructor.Name.ToLower().StartsWith(firstInitial.ToLower())
                         );
                 return await instructoresFiltrados.ToListAsync();
             }

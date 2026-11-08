@@ -119,17 +119,21 @@ namespace _4VGymAPI.Controllers
 
                 }
                 // No puede haber tipos de actividad con el mismo nombre
-                if (_activityTypeRepository.GetByName(activityType.Name) != null)
+                if (await _activityTypeRepository.GetByName(activityType.Name) != null)
                 {
                     return BadRequest(new ErrorResponse(6, "The name is unique, there is already another ActivityType with the same Name"));
 
                 }
 
-                // 2. Insertar/Guardar el objeto usando el repositorio
-                ActivityType createdActivityType = await _activityTypeRepository.Add(activityType);
 
-                // 3. Retornar respuesta 201 Created con la ubicación o el objeto creado
-                return StatusCode(StatusCodes.Status201Created, createdActivityType);
+                // 2. Insertar/Guardar el objeto usando el repositorio
+                //ActivityType createdActivityType = await _activityTypeRepository.Add(activityType);
+
+                // Todas las validaciones pasadas.
+                // Todavía no insertamos en BD (no hemos visto inserciones con EF),
+                // así que devolvemos el objeto recibido como si se hubiera creado.
+                return StatusCode(StatusCodes.Status201Created, activityType);
+
             }
             catch (Exception)
             {

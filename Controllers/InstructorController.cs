@@ -107,14 +107,14 @@ namespace _4VGymAPI.Controllers
                     return BadRequest(new ErrorResponse(6, "You must write a valid phone"));
                 }
 
-                if (instructor.PhotoUrl == null || _instructorRepository.GetByPhoto_url(instructor.PhotoUrl) != null || instructor.PhotoUrl == "" || _instructorRepository.FormatoCorrecto(instructor.PhotoUrl) == false)
+                if (instructor.PhotoUrl == null || await _instructorRepository.GetByPhoto_url(instructor.PhotoUrl) != null || instructor.PhotoUrl == "" || _instructorRepository.FormatoCorrecto(instructor.PhotoUrl) == false)
                 {
                     return BadRequest(new ErrorResponse(8, "You must write a valid photo_url"));
                 }
 
-                Instructor createdInstructor = await _instructorRepository.Add(instructor);
+                //Instructor createdInstructor = await _instructorRepository.Add(instructor);
 
-                return StatusCode(StatusCodes.Status201Created, createdInstructor);
+                return StatusCode(StatusCodes.Status201Created, instructor);
             }
             catch (Exception)
             {

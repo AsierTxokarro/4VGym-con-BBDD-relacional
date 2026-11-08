@@ -21,7 +21,7 @@ namespace _4GYM.Repositories
 
         public async Task <ActivityType?> GetByName(string name)
         {
-            return await _bd4VgymContext.ActivityTypes.SingleOrDefaultAsync(n => string.Equals(n.Name, name, StringComparison.CurrentCultureIgnoreCase));
+            return await _bd4VgymContext.ActivityTypes.SingleOrDefaultAsync(n => string.Equals(n.Name.ToLower(), name.ToLower()));
         }
         public ActivityType? GetById(long id)
         {

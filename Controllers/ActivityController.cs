@@ -61,10 +61,10 @@ namespace _4VGymAPI.Controllers
                 }
 
                 
-                Activity? createdActivity = await _activityrepository.Add(activity);
+                //Activity? createdActivity = await _activityrepository.Add(activity);
             
 
-                return StatusCode(StatusCodes.Status201Created, createdActivity);
+                return StatusCode(StatusCodes.Status201Created, activity);
             }
             catch (Exception)
             {
